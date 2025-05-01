@@ -1,3 +1,5 @@
+using System;
+
 namespace Core.StateMachines.Interfaces
 {
     public interface IState

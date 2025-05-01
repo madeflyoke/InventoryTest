@@ -280,6 +280,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ItemView
       objectReference: {fileID: 0}
+    - target: {fileID: 8232732939125983488, guid: d9e384f1527b1da46804170cd7d704f0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

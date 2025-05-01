@@ -21,5 +21,10 @@ namespace Core.Inventory.Data
         {
             return other != null && Equals(ItemSetup.Id, other.ItemSetup.Id);
         }
+
+        public ItemPackageData Clone()
+        {
+            return new ItemPackageData(ItemSetup, Count);
+        }
     }
 }

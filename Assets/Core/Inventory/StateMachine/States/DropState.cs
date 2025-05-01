@@ -1,5 +1,7 @@
+using System;
 using Core.Inventory.Data;
 using Core.Inventory.View;
+using Core.Pools;
 using Core.StateMachines.Interfaces;
 using UnityEngine;
 
@@ -8,9 +10,9 @@ namespace Core.Inventory.StateMachine.States
     public class DropState : IState
     {
         private IStateMachine _stateMachine;
-        private ItemSlotStatesContext _context;
+        private InventoryStatesContext _context;
 
-        public DropState(IStateMachine stateMachine, ItemSlotStatesContext context)
+        public DropState(IStateMachine stateMachine, InventoryStatesContext context)
         {
             _stateMachine = stateMachine;
             _context = context;
@@ -18,66 +20,61 @@ namespace Core.Inventory.StateMachine.States
 
         public void Enter()
         {
-            var source = _context.RelatedSlot;
+            var source = _context.SourceSlot;
             var target = _context.TargetSlot;
 
-            if (target == null || target == source)
+            if (_context.MovablePackageData==null)
             {
-                ReturnToSource();
+                throw new Exception("No movable package data"); //shouldnt be at all
             }
-            else
+
+            if (target!=null && target!=source)
             {
-                if (target.IsEmpty)
+                if (target.IsEmpty) //replace to empty
                 {
-                    MoveItemToTarget(source.CurrentItemPackage);
+                    ReplaceItemsPackages(true);
+                }
+                else if(_context.MovablePackageData.Equals(target.CurrentItemPackage)) //same items
+                {
+                    ReplaceItemsPackages(false);
                 }
                 else
                 {
-                    HandleNonEmptyTarget(source, target);
+                    ReturnToSource();
                 }
-            }
-            
-            _stateMachine.SwitchState<IdleState>();
-        }
-
-        private void MoveItemToTarget(ItemPackageData itemPackage)
-        {
-            SetToTarget(itemPackage);
-        }
-
-        private void HandleNonEmptyTarget(ItemSlot source, ItemSlot target)
-        {
-            if (source.CurrentItemPackage.Equals(target.CurrentItemPackage))
-            {
-                MergeItemPackages(source.CurrentItemPackage, target.CurrentItemPackage);
             }
             else
             {
                 ReturnToSource();
             }
+            _stateMachine.SwitchState<IdleState>();
         }
-
-        private void MergeItemPackages(ItemPackageData sourcePackage, ItemPackageData targetPackage)
+        
+        private void ReplaceItemsPackages(bool toEmpty)
         {
-            sourcePackage.SetCount(sourcePackage.Count + targetPackage.Count);
-            SetToTarget(sourcePackage);
-        }
+            var sourceItemPackage = _context.SourceSlot.CurrentItemPackage;
+            sourceItemPackage.SetCount(sourceItemPackage.Count - _context.MovablePackageData.Count);
+            _context.SourceSlot.SetItemPackage(sourceItemPackage);
 
-        private void SetToTarget(ItemPackageData itemPackage)
-        {
-            _context.TargetSlot.SetItemPackage(itemPackage);
-            _context.RelatedSlot.Clear();
+            var resultCount = _context.MovablePackageData.Count;
+            if (toEmpty == false)
+                resultCount += _context.TargetSlot.CurrentItemPackage.Count;
+            
+            _context.MovablePackageData.SetCount(resultCount);
+            _context.TargetSlot.SetItemPackage(_context.MovablePackageData);
         }
 
         private void ReturnToSource()
         {
-            _context.RelatedSlot.SetViewActive(true);
+            _context.SourceSlot.UpdateViewToData();
         }
 
         private void Reset()
         {
+            _context.SourceSlot =null;
             _context.TargetSlot = null;
-            _context.ItemViewPool.Despawn(_context.MovableView);
+            _context.MovablePackageData = null;
+            CommonPool.Instance.Despawn(_context.MovableView);
         }
 
         public void Exit()

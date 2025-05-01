@@ -13,6 +13,11 @@ namespace Core.Inventory.View
         {
             _icon.sprite = icon;
             _icon.enabled = true;
+            SetCountText(count);
+        }
+
+        public void SetCountText(int count)
+        {
             _countText.text = "x"+count;
         }
 

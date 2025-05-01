@@ -1,34 +1,39 @@
 using System;
 using Core.Inventory.Data;
-using Core.Inventory.StateMachine;
-using Core.Pools;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Core.Inventory.View
 {
-    public class ItemSlot : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
+    public class ItemSlot : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerClickHandler
     {
-        public event Action OnBeginDragEvent;
-        public event Action<PointerEventData> OnEndDragEvent;
-        public event Action<PointerEventData> OnDragEvent;
+        public event Action<ItemSlot,PointerEventData> OnBeginDragEvent;
+        public event Action<ItemSlot,PointerEventData> OnEndDragEvent;
+        public event Action<ItemSlot,PointerEventData> OnDragEvent;
+        public event Action<ItemSlot,PointerEventData> OnClickEvent;
 
         public bool IsEmpty => CurrentItemPackage == null;
         public ItemPackageData CurrentItemPackage { get; private set; }
 
         [SerializeField] private RectTransform _itemViewParent;
         [SerializeField] private ItemView _itemView;
-        private ItemSlotStateMachine _stateMachine;
-
-        public void Initialize(IPool<ItemView> itemViewPool, RectTransform movablesParent)
-        {
-            _stateMachine = new ItemSlotStateMachine(new ItemSlotStatesContext(this, movablesParent,itemViewPool));
-        }
         
         public void SetItemPackage(ItemPackageData itemPackage)
         {
-            CurrentItemPackage = itemPackage;
-            _itemView.Setup(CurrentItemPackage.ItemSetup.Icon, CurrentItemPackage.Count);
+            CurrentItemPackage = itemPackage.Count==0? null:itemPackage;
+            UpdateViewToData();
+        }
+
+        public void UpdateViewToData()
+        {
+            if (IsEmpty==false)
+            {
+                _itemView.Setup(CurrentItemPackage.ItemSetup.Icon, CurrentItemPackage.Count);
+            }
+            else
+            {
+                Clear();
+            }
             SetViewActive(true);
         }
 
@@ -36,8 +41,13 @@ namespace Core.Inventory.View
         {
             _itemView.gameObject.SetActive(value);
         }
+
+        public void ChangeViewData(int newCount)
+        {
+            _itemView.SetCountText(newCount);
+        }
         
-        public void Clear()
+        private void Clear()
         {
             CurrentItemPackage = null;
             _itemView.Clear();
@@ -50,17 +60,26 @@ namespace Core.Inventory.View
             {
                 return;
             }
-            OnBeginDragEvent?.Invoke();
+            OnBeginDragEvent?.Invoke(this, eventData);
         }
         
         public void OnEndDrag(PointerEventData eventData)
         {
-            OnEndDragEvent?.Invoke(eventData);
+            OnEndDragEvent?.Invoke(this,eventData);
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            OnDragEvent?.Invoke(eventData);
+            OnDragEvent?.Invoke(this,eventData);
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (IsEmpty)
+            {
+                return;
+            }
+            OnClickEvent?.Invoke(this,eventData);
         }
     }
 }

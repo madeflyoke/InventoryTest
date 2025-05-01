@@ -176,10 +176,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 54197415}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc69ad78a6b15934e93223a94b0ed4de, type: 3}
+  m_Script: {fileID: 11500000, guid: 578726602ef8d9345be2173c0aeacb56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 3419070444363440454, guid: d9e384f1527b1da46804170cd7d704f0, type: 3}
+  _componentsPrefabs:
+  - {fileID: 3419070444363440454, guid: d9e384f1527b1da46804170cd7d704f0, type: 3}
+  - {fileID: 6515195626698712792, guid: 3bf4c59b177d5054897309117bc4baef, type: 3}
   _preloadCount: 5
 --- !u!1 &519420028
 GameObject:
@@ -555,11 +557,11 @@ PrefabInstance:
     - target: {fileID: 7300076075176984346, guid: d656ec619886c194d8fa0aa4bb1c3a4b, type: 3}
       propertyPath: _itemViewPool
       value: 
-      objectReference: {fileID: 54197418}
+      objectReference: {fileID: 0}
     - target: {fileID: 7300076075176984346, guid: d656ec619886c194d8fa0aa4bb1c3a4b, type: 3}
       propertyPath: _itemViewItemViewPool
       value: 
-      objectReference: {fileID: 54197418}
+      objectReference: {fileID: 0}
     - target: {fileID: 7923886717851528830, guid: d656ec619886c194d8fa0aa4bb1c3a4b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -645,7 +647,10 @@ PrefabInstance:
       value: InventoryPopup
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5585323959597471897, guid: d656ec619886c194d8fa0aa4bb1c3a4b, type: 3}
+    - {fileID: 438966884658116883, guid: d656ec619886c194d8fa0aa4bb1c3a4b, type: 3}
+    - {fileID: 9038534661313845195, guid: d656ec619886c194d8fa0aa4bb1c3a4b, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d656ec619886c194d8fa0aa4bb1c3a4b, type: 3}
