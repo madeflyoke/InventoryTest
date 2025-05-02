@@ -43,7 +43,7 @@ namespace Core.Inventory
                 _slots.Add(instance);
             }
             await UniTask.Yield(PlayerLoopTiming.PostLateUpdate, cancellationToken: _cts.Token);
-           // DisableLayouts();
+            DisableLayouts();
 
             _stateMachine = new InventoryStateMachine(new InventoryStatesContext(_itemsMovablesParent, _slots, _canvasInputHelper));
         }
