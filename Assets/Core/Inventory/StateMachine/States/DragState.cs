@@ -2,6 +2,7 @@ using Core.Inventory.Data;
 using Core.Inventory.View;
 using Core.Pools;
 using Core.StateMachines.Interfaces;
+using Core.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -30,14 +31,14 @@ namespace Core.Inventory.StateMachine.States
 
         private void OnDrag(ItemSlot itemSlot, PointerEventData pointerEventData)
         {
-            _context.MovableView.transform.position = pointerEventData.position;
+            _context.MovableView.transform.position = _context.InputHelper.GetWorldMousePosition();
         }
 
         private ItemView CreateVisualPackage()
         {
-            var packageItemView = CommonPool.Instance.Spawn<ItemView>(_context.MovablesParent);
+            var packageItemView = CommonMonoPool.Instance.Spawn<ItemView>(_context.MovablesParent);
             packageItemView.Setup(_context.MovablePackageData.ItemSetup.Icon, _context.MovablePackageData.Count);
-            packageItemView.transform.position = Input.mousePosition;
+            packageItemView.transform.position = _context.InputHelper.GetWorldMousePosition();
             return packageItemView;
         }
         

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Core.Inventory.View;
 using Core.StateMachines.Interfaces;
+using Core.Utils;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -38,7 +39,8 @@ namespace Core.Inventory.StateMachine.States
             {
                 slot.OnClickEvent += OnClick;
             }
-            
+
+            _context.InputHelper.LeftMouseClick += CheckInvalidClick;
             UpdatePosition().Forget();
         }
 
@@ -55,39 +57,35 @@ namespace Core.Inventory.StateMachine.States
         {
             while (_cts.IsCancellationRequested == false)
             {
-                CheckInvalidClick();
                 var canceled = await UniTask.Yield(cancellationToken: _cts.Token).SuppressCancellationThrow();
                 if (canceled)
                 {
                     return;
                 }
-                _context.MovableView.transform.position = Input.mousePosition;
+                _context.MovableView.transform.position = _context.InputHelper.GetWorldMousePosition();
             }   
         }
 
         private void CheckInvalidClick()
         {
-            if (Input.GetKeyUp(KeyCode.Mouse0)) //separated input manager?
+            _clickEventData.position = Input.mousePosition;
+            EventSystem.current.RaycastAll(_clickEventData, _raycastResults);
+            if (_raycastResults.Count>0)
             {
-                _clickEventData.position = Input.mousePosition;
-                EventSystem.current.RaycastAll(_clickEventData, _raycastResults);
-                if (_raycastResults.Count>0)
+                for (int i = 0; i < _raycastResults.Count; i++)
                 {
-                    for (int i = 0; i < _raycastResults.Count; i++)
+                    if (_raycastResults[i].gameObject.TryGetComponent(out ItemSlot result))
                     {
-                        if (_raycastResults[i].gameObject.TryGetComponent(out ItemSlot result))
-                        {
-                            _context.TargetSlot = result;
-                            break;
-                        }
+                        _context.TargetSlot = result;
+                        break;
                     }
                 }
-                else
-                {
-                    _context.TargetSlot = null;
-                }
-                _stateMachine.SwitchState<DropState>();
             }
+            else
+            {
+                _context.TargetSlot = null;
+            }
+            _stateMachine.SwitchState<DropState>();
         }
 
         public void Exit()
@@ -97,6 +95,7 @@ namespace Core.Inventory.StateMachine.States
             {
                 slot.OnClickEvent -= OnClick;
             }
+            _context.InputHelper.LeftMouseClick -= CheckInvalidClick;
         }
 
         public void Dispose()

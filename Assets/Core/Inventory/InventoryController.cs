@@ -7,6 +7,7 @@ using Core.Inventory.View;
 using Core.Pools;
 using Core.Services;
 using Core.Services.PlayerData.Inventory;
+using Core.Utils;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +19,7 @@ namespace Core.Inventory
         [SerializeField] private int _slotsCount;
         [SerializeField] private GridLayoutGroup _slotsContainer;
         [SerializeField] private RectTransform _itemsMovablesParent;
+        [SerializeField] private CanvasInputHelper _canvasInputHelper;
         [SerializeField] private ItemsConfig _itemsConfig;
         private InventoryStateMachine _stateMachine;
         private List<ItemSlot> _slots = new List<ItemSlot>();
@@ -30,7 +32,7 @@ namespace Core.Inventory
             _inventoryModelMediator = ServiceLocator.Instance.PlayerDataService.InventoryModelMediator;
             for (int i = 0; i < _slotsCount; i++)
             {
-                var instance = CommonPool.Instance.Spawn<ItemSlot>(_slotsContainer.transform);
+                var instance = CommonMonoPool.Instance.Spawn<ItemSlot>(_slotsContainer.transform);
                 instance.Initialize(i);
                 instance.SetItemPackage(_inventoryModelMediator.GetItemsDataBySlot(i, out var itemId, out var count)
                     ? new ItemPackageData(_itemsConfig.GetItemSetupById(itemId), count)
@@ -41,9 +43,9 @@ namespace Core.Inventory
                 _slots.Add(instance);
             }
             await UniTask.Yield(PlayerLoopTiming.PostLateUpdate, cancellationToken: _cts.Token);
-            DisableLayouts();
+           // DisableLayouts();
 
-            _stateMachine = new InventoryStateMachine(new InventoryStatesContext(_itemsMovablesParent, _slots));
+            _stateMachine = new InventoryStateMachine(new InventoryStatesContext(_itemsMovablesParent, _slots, _canvasInputHelper));
         }
 
         private void SaveInventorySlotState(ItemSlot slot)

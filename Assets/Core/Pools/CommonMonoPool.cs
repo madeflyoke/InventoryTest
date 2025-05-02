@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Core.Pools
 {
-    public class CommonPool : MonoBehaviour, IMonoPool
+    public class CommonMonoPool : MonoBehaviour, IMonoPool
     {
         public static IMonoPool Instance { get; private set; }
         
@@ -51,6 +51,7 @@ namespace Core.Pools
             if (worldPositionStays == false)
             {
                 target.transform.localPosition = Vector3.zero;
+                target.transform.localScale = Vector3.one;
             }
 
             target.gameObject.SetActive(true);

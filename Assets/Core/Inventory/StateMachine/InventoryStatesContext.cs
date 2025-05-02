@@ -3,6 +3,7 @@ using Core.Inventory.Data;
 using Core.Inventory.View;
 using Core.Pools;
 using Core.Pools.Interfaces;
+using Core.Utils;
 using UnityEngine;
 
 namespace Core.Inventory.StateMachine
@@ -16,11 +17,13 @@ namespace Core.Inventory.StateMachine
         
         public RectTransform MovablesParent { get; private set; }
         public List<ItemSlot> AllSlots { get; private set; }
+        public CanvasInputHelper InputHelper { get; private set; }
 
-        public InventoryStatesContext(RectTransform movablesParent, List<ItemSlot> allSlots)
+        public InventoryStatesContext(RectTransform movablesParent, List<ItemSlot> allSlots, CanvasInputHelper inputHelper)
         {
             MovablesParent = movablesParent;
             AllSlots = allSlots;
+            InputHelper = inputHelper;
         }
     }
 }

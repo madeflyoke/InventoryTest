@@ -74,7 +74,7 @@ namespace Core.Inventory.StateMachine.States
             _context.SourceSlot =null;
             _context.TargetSlot = null;
             _context.MovablePackageData = null;
-            CommonPool.Instance.Despawn(_context.MovableView);
+            CommonMonoPool.Instance.Despawn(_context.MovableView);
         }
 
         public void Exit()

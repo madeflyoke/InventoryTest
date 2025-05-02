@@ -2,6 +2,7 @@ using Core.Inventory.Data;
 using Core.Inventory.View;
 using Core.Pools;
 using Core.StateMachines.Interfaces;
+using Core.Utils;
 using UnityEngine;
 
 namespace Core.Inventory.StateMachine.States
@@ -43,9 +44,9 @@ namespace Core.Inventory.StateMachine.States
         
         private ItemView CreateVisualPackage()
         {
-            var packageItemView = CommonPool.Instance.Spawn<ItemView>(_context.MovablesParent);
+            var packageItemView = CommonMonoPool.Instance.Spawn<ItemView>(_context.MovablesParent);
             packageItemView.Setup(_context.MovablePackageData.ItemSetup.Icon, _context.MovablePackageData.Count);
-            packageItemView.transform.position = Input.mousePosition;
+            packageItemView.transform.position = _context.InputHelper.GetWorldMousePosition();
             return packageItemView;
         }
 
