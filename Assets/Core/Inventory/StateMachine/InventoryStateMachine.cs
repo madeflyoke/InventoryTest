@@ -24,6 +24,7 @@ namespace Core.Inventory.StateMachine
             
             AddState<StackGetState>();
             AddState<StackMoveState>();
+            AddState<ReturnState>();
             
             SwitchState<IdleState>();
         }

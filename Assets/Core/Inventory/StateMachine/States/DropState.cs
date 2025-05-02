@@ -38,12 +38,16 @@ namespace Core.Inventory.StateMachine.States
                 else
                 {
                     ReturnToSource();
+                    return;
                 }
             }
             else
             {
                 ReturnToSource();
+                return;
             }
+
+            Reset();
             _stateMachine.SwitchState<IdleState>();
         }
         
@@ -66,7 +70,7 @@ namespace Core.Inventory.StateMachine.States
 
         private void ReturnToSource()
         {
-            _context.SourceSlot.UpdateViewToData();
+            _stateMachine.SwitchState<ReturnState>();
         }
 
         private void Reset()
@@ -79,7 +83,7 @@ namespace Core.Inventory.StateMachine.States
 
         public void Exit()
         {
-            Reset();
+            
         }
     }
 }
