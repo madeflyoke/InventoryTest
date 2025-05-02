@@ -31,13 +31,12 @@ namespace Core.Inventory
             for (int i = 0; i < _slotsCount; i++)
             {
                 var instance = CommonPool.Instance.Spawn<ItemSlot>(_slotsContainer.transform);
-                instance.gameObject.SetActive(true);
                 instance.Initialize(i);
-                if (_inventoryModelMediator.GetItemsDataBySlot(i, out var itemId, out var count))
-                {
-                    instance.SetItemPackage(new ItemPackageData(_itemsConfig.GetItemSetupById(itemId),count));
-                }
-                
+                instance.SetItemPackage(_inventoryModelMediator.GetItemsDataBySlot(i, out var itemId, out var count)
+                    ? new ItemPackageData(_itemsConfig.GetItemSetupById(itemId), count)
+                    : null);
+
+                instance.gameObject.SetActive(true);
                 instance.ItemPackageUpdated += SaveInventorySlotState;
                 _slots.Add(instance);
             }

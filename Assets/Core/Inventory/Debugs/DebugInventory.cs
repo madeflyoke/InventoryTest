@@ -24,7 +24,7 @@ namespace Core.Inventory.Debugs
 
         public void AddRandomItem()
         {
-            var count = Random.Range(1, 2);
+            var count = Random.Range(1, 6);
             var emptySlots = _slots.Where(x => x.IsEmpty).ToList();
             if (emptySlots.Count == 0)
             {

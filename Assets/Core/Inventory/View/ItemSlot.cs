@@ -69,7 +69,6 @@ namespace Core.Inventory.View
         {
             CurrentItemPackage = null;
             _itemView.Clear();
-            SetViewActive(true);
         }
         
         public void OnBeginDrag(PointerEventData eventData)
