@@ -1,39 +1,81 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Core.Inventory.Data;
 using Core.Inventory.StateMachine;
 using Core.Inventory.View;
 using Core.Pools;
+using Core.Services;
+using Core.Services.PlayerData.Inventory;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Core.Inventory
 {
     public class InventoryController : MonoBehaviour
     {
         [SerializeField] private int _slotsCount;
-        [SerializeField] private RectTransform _slotsContainer;
+        [SerializeField] private GridLayoutGroup _slotsContainer;
         [SerializeField] private RectTransform _itemsMovablesParent;
         [SerializeField] private ItemsConfig _itemsConfig;
         private InventoryStateMachine _stateMachine;
         private List<ItemSlot> _slots = new List<ItemSlot>();
+
+        private InventoryModelMediator _inventoryModelMediator;
+        private CancellationTokenSource _cts= new CancellationTokenSource();
         
-        private void Start()
+        private async void Start()
         {
+            _inventoryModelMediator = ServiceLocator.Instance.PlayerDataService.InventoryModelMediator;
             for (int i = 0; i < _slotsCount; i++)
             {
-                var instance = CommonPool.Instance.Spawn<ItemSlot>(_slotsContainer);
+                var instance = CommonPool.Instance.Spawn<ItemSlot>(_slotsContainer.transform);
                 instance.gameObject.SetActive(true);
+                instance.Initialize(i);
+                if (_inventoryModelMediator.GetItemsDataBySlot(i, out var itemId, out var count))
+                {
+                    instance.SetItemPackage(new ItemPackageData(_itemsConfig.GetItemSetupById(itemId),count));
+                }
+                
+                instance.ItemPackageUpdated += SaveInventorySlotState;
                 _slots.Add(instance);
             }
-            _slots[0].SetItemPackage(new ItemPackageData(_itemsConfig.GetItemSetupById(0), 5));
-            _slots[1].SetItemPackage(new ItemPackageData(_itemsConfig.GetItemSetupById(2), 6));
-            _slots[2].SetItemPackage(new ItemPackageData(_itemsConfig.GetItemSetupById(0), 9));
-            
+            await UniTask.Yield(PlayerLoopTiming.PostLateUpdate, cancellationToken: _cts.Token);
+            DisableLayouts();
+
             _stateMachine = new InventoryStateMachine(new InventoryStatesContext(_itemsMovablesParent, _slots));
+        }
+
+        private void SaveInventorySlotState(ItemSlot slot)
+        {
+            if (slot.IsEmpty)
+            {
+                _inventoryModelMediator.ClearItemsPackageSlot(slot.SlotId);
+            }
+            else
+            {
+                _inventoryModelMediator.SetItemsPackageSlot(slot.SlotId, slot.CurrentItemPackage.ItemSetup.Id,
+                    slot.CurrentItemPackage.Count);
+            }
+        }
+
+        private void DisableLayouts()
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_slotsContainer.transform as RectTransform);
+            if (_slotsContainer.TryGetComponent(out ContentSizeFitter fitter))
+            {
+                fitter.enabled = false;
+            }
+            _slotsContainer.enabled = false;
         }
 
         private void OnDisable()
         {
+            foreach (var slot in _slots)
+            {
+                slot.ItemPackageUpdated -= SaveInventorySlotState;
+            }
             _stateMachine?.Dispose();
         }
     }

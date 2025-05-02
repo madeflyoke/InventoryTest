@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using Core.Services.PlayerData;
 using EasyButtons;
 using UnityEngine;
@@ -20,19 +22,8 @@ namespace Core.Services
             
             PlayerDataService = new PlayerDataService();
             
+            Application.targetFrameRate = 60;
             Instance = this;
-        }
-
-        [Button]
-        public void AddItem(int itemid, int count)
-        {
-            PlayerDataService.InventoryModelMediator.AddItem(itemid, count);
-        }
-        
-        [Button]
-        public void GetItem(int itemid)
-        {
-            Debug.LogWarning(PlayerDataService.InventoryModelMediator.GetItemCount(itemid));
         }
     }
 }

@@ -1,9 +1,6 @@
 using System;
-using Core.Inventory.Data;
-using Core.Inventory.View;
 using Core.Pools;
 using Core.StateMachines.Interfaces;
-using UnityEngine;
 
 namespace Core.Inventory.StateMachine.States
 {
@@ -52,16 +49,19 @@ namespace Core.Inventory.StateMachine.States
         
         private void ReplaceItemsPackages(bool toEmpty)
         {
-            var sourceItemPackage = _context.SourceSlot.CurrentItemPackage;
+            var sourceSlot = _context.SourceSlot;
+            var targetSlot = _context.TargetSlot;
+            
+            var sourceItemPackage = sourceSlot.CurrentItemPackage;
             sourceItemPackage.SetCount(sourceItemPackage.Count - _context.MovablePackageData.Count);
-            _context.SourceSlot.SetItemPackage(sourceItemPackage);
+            sourceSlot.SetItemPackage(sourceItemPackage);
 
             var resultCount = _context.MovablePackageData.Count;
             if (toEmpty == false)
-                resultCount += _context.TargetSlot.CurrentItemPackage.Count;
+                resultCount += targetSlot.CurrentItemPackage.Count;
             
             _context.MovablePackageData.SetCount(resultCount);
-            _context.TargetSlot.SetItemPackage(_context.MovablePackageData);
+            targetSlot.SetItemPackage(_context.MovablePackageData);
         }
 
         private void ReturnToSource()

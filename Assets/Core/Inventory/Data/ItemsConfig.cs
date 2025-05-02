@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Core.Inventory.Data
 {
@@ -12,6 +13,11 @@ namespace Core.Inventory.Data
         public ItemSetup GetItemSetupById(int id)
         {
             return _itemsSetups.FirstOrDefault(x=>x.Id == id);
+        }
+
+        public ItemSetup GetRandomItemSetup()
+        {
+            return _itemsSetups[Random.Range(0, _itemsSetups.Length)];
         }
 
         public void OnValidate()

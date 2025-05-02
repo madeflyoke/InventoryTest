@@ -12,20 +12,29 @@ namespace Core.Inventory.View
         public event Action<ItemSlot,PointerEventData> OnDragEvent;
         public event Action<ItemSlot,PointerEventData> OnClickEvent;
 
+        public event Action<ItemSlot> ItemPackageUpdated;
+        public int SlotId => _slotIndex;
         public bool IsEmpty => CurrentItemPackage == null;
         public ItemPackageData CurrentItemPackage { get; private set; }
 
         [SerializeField] private RectTransform _itemViewParent;
         [SerializeField] private ItemView _itemView;
+        private int _slotIndex;
+        
+        public void Initialize(int slotIndex)
+        {
+            _slotIndex = slotIndex;
+        }
         
         public void SetItemPackage(ItemPackageData itemPackage)
         {
-            CurrentItemPackage = itemPackage.Count==0? null:itemPackage;
+            CurrentItemPackage = itemPackage;
             UpdateViewToData();
         }
-
+        
         public void UpdateViewToData()
         {
+            ValidatePackage();
             if (IsEmpty==false)
             {
                 _itemView.Setup(CurrentItemPackage.ItemSetup.Icon, CurrentItemPackage.Count);
@@ -35,6 +44,7 @@ namespace Core.Inventory.View
                 Clear();
             }
             SetViewActive(true);
+            ItemPackageUpdated?.Invoke(this);
         }
 
         public void SetViewActive(bool value)
@@ -45,6 +55,14 @@ namespace Core.Inventory.View
         public void ChangeViewData(int newCount)
         {
             _itemView.SetCountText(newCount);
+        }
+        
+        private void ValidatePackage()
+        {
+            if (CurrentItemPackage?.Count<=0)
+            {
+                Clear();
+            }
         }
         
         private void Clear()

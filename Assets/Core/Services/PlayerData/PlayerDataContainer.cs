@@ -8,11 +8,13 @@ namespace Core.Services.PlayerData
     public class PlayerDataContainer
     {
         public InventoryModel InventoryModel { get; private set; }
+        public InventoryViewStateModel InventoryViewStateModel { get; private set; }
         
         [JsonConstructor]
-        public PlayerDataContainer(InventoryModel inventoryModel)
+        public PlayerDataContainer(InventoryModel inventoryModel, InventoryViewStateModel inventoryViewStateModel)
         {
             InventoryModel = inventoryModel;
+            InventoryViewStateModel = inventoryViewStateModel;
         }
     }
 }
